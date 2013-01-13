@@ -1,7 +1,7 @@
 UCBLibraryTimes
 ===============
 
-Text-based library hours information.
+Text-based library hours information for UC Berkeley.
 
 Getting Started
 ---------------
