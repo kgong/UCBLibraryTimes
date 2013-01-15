@@ -29,7 +29,7 @@
     2  => "Art History/Classics",
     4  => "Bancroft",
     6  => "Berkeley Law",
-    9  => "Bioscience & Natural Resources",
+    9  => "Bioscience and Natural Resources",
     11 => "Business",
     14 => "Career Counseling",
     15 => "Chemistry and Chemical Engineering",
@@ -73,7 +73,7 @@
         $openTime = strtotime($splitTime[0]);
         $closeTime = strtotime($splitTime[1]);
         $open = False;
-        if ($curr["openTime"] < strtotime("now") && strtotime("now") < $curr["closeTime"])
+        if ($openTime < strtotime("now") && strtotime("now") < $closeTime)
           $open = True;
         $allLibraries[] = array(
           "name" => $idPairs[$counter],
@@ -89,15 +89,20 @@
 /* Logic for detecting input */
   if($inputBody == "open") {
     $openFound = False;
+    $toReturn = "";
     foreach ($allLibraries as $curr) {
       if ($curr["open"]) {
         $openFound = True;
-        $toReturn = $toReturn.", ".$curr["name"];
+        $openLibs[] = $curr["name"];
       }
     }
     if ($openFound == False)
       $toReturn = "No libraries are open now. Try SLC or other department buildings!";
-  }
+    else {
+      $toReturn = join(", ",$openLibs);
+      $toReturn = "The following libraries are currently open: " . $toReturn;
+    }
+  }  
 	elseif($inputBody == "anthropology" || $inputBody == "anthro") 
 		$toReturn = "The Anthropology Library is open ".$allLibraries[0]["rawValue"];
   elseif ($inputBody == "art history" || $inputBody == "art")
@@ -107,7 +112,7 @@
   elseif ($inputBody == "berkeley law" || $inputBody == "boalt" || $inputBody == "law")
 		$toReturn = "The Berkeley Law Library is open ".$allLibraries[3]["rawValue"];
   elseif ($inputBody == "bioscience")
-		$toReturn = "The Bioscience & Natural Resources Library is open ".$allLibraries[4]["rawValue"];
+		$toReturn = "The Bioscience and Natural Resources Library is open ".$allLibraries[4]["rawValue"];
   elseif ($inputBody == "business" || $inputBody == "haas")
 		$toReturn = "The Business Library is open ".$allLibraries[5]["rawValue"];
   elseif ($inputBody == "career counseling" || $inputBody == "career")
@@ -167,12 +172,23 @@
 	elseif ($inputBody == "slc" || $inputBody == "student learning center")
 		$toReturn = "The SLC is open 24 hours!";
 	else
-		$toReturn = $actualInput."is not a valid library name. Just enter the library name such as doe or stacks. No need for the word library.";
+		$toReturn = $actualInput." is not a valid library name. Just enter the library name such as doe or stacks. No need for the word library.";
 	
 	if(strstr($toReturn, 'Closed'))
 		$toReturn = "That library is closed today =(.";
+
+  $chunks = explode("||||",wordwrap($toReturn,155,"||||"));
+  $total = count($chunks);
+
+  foreach($chunks as $page => $chunk) {
+    $numbers = sprintf("(%d/%d) ", $page+1, $total);
+    $textReturn[] = $numbers . $chunk;
+  }
 ?>
 
 <Response>
-	<Sms><?php echo $toReturn?></Sms>
+	<Sms><?php echo $textReturn[0]?></Sms>
+	<Sms><?php echo $textReturn[1]?></Sms>
+  <Sms><?php echo $textReturn[2]?></Sms>
+  <Sms><?php echo $textReturn[3]?></Sms>
 </Response>
